@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Studio — Game Math Development Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E1419; --surface:#161E26; --raised:#1D2833; --raised2:#22303C;
+  --line:#27343F; --line-soft:#1E2A34;
+  --tx:#E8EDF2; --tx2:#93A1AE; --tx3:#5E6E7A;
+  --teal:#34C7B5; --teal-dim:#1F5C56;
+  --green:#3FB873; --amber:#E5A234; --red:#E25555;
+  --green-bg:rgba(63,184,115,.12); --amber-bg:rgba(229,162,52,.12); --red-bg:rgba(226,85,85,.12); --teal-bg:rgba(52,199,181,.12);
+  --green-bd:rgba(63,184,115,.35); --amber-bd:rgba(229,162,52,.35); --red-bd:rgba(226,85,85,.35); --teal-bd:rgba(52,199,181,.35);
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --disp:'Space Grotesk',sans-serif;
+  --body:'Inter',system-ui,sans-serif;
+  --r:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:13px}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#2C3A46;border-radius:6px}
+::selection{background:var(--teal-dim);color:#fff}
+
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px 80px}
+header.top{border-bottom:1px solid var(--line);background:linear-gradient(180deg,#101720,#0E1419)}
+.top-inner{max-width:1100px;margin:0 auto;padding:22px 24px 0;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:13px}
+.glyph{width:38px;height:38px;border-radius:9px;background:radial-gradient(circle at 30% 25%,#3a4b59,#1b252e);border:1px solid var(--line);display:grid;place-items:center;font-family:var(--mono);font-weight:700;color:var(--teal);font-size:17px;box-shadow:inset 0 0 0 1px rgba(52,199,181,.12)}
+.brand h1{font-family:var(--disp);font-size:18px;font-weight:600;margin:0;letter-spacing:-.01em}
+.brand p{margin:1px 0 0;color:var(--tx3);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+.tabs{display:flex;gap:2px;margin-top:18px}
+.tab{background:none;border:none;color:var(--tx2);padding:11px 16px;font-size:13px;font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab:hover{color:var(--tx)}
+.tab.on{color:var(--tx);border-bottom-color:var(--teal)}
+
+.kstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:24px 0 28px}
+.kpi{background:var(--surface);padding:15px 17px}
+.kpi .lab{color:var(--tx3);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.kpi .val{font-family:var(--mono);font-size:26px;font-weight:700;margin-top:6px;letter-spacing:-.02em}
+.kpi .val small{font-size:14px;color:var(--tx2);font-weight:500}
+.kpi .sub{font-size:11px;color:var(--tx3);margin-top:2px}
+
+.sec-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
+.sec-h h2{font-family:var(--disp);font-size:15px;font-weight:600;margin:0;letter-spacing:.01em}
+.sec-h .eyebrow{color:var(--tx3);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.btn{background:var(--teal);color:#06201d;border:none;border-radius:8px;padding:9px 15px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--tx2);border:1px solid var(--line)}
+.btn.ghost:hover{color:var(--tx);border-color:#37454f}
+.btn.sm{padding:6px 11px;font-size:12px;border-radius:7px}
+.btn.danger{color:var(--red);background:transparent;border:1px solid var(--red-bd)}
+.btn.danger:hover{background:var(--red-bg)}
+
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;border:1px solid;white-space:nowrap}
+.b-green{color:var(--green);background:var(--green-bg);border-color:var(--green-bd)}
+.b-amber{color:var(--amber);background:var(--amber-bg);border-color:var(--amber-bd)}
+.b-red{color:var(--red);background:var(--red-bg);border-color:var(--red-bd)}
+.b-teal{color:var(--teal);background:var(--teal-bg);border-color:var(--teal-bd)}
+.b-gray{color:var(--tx2);background:rgba(147,161,174,.1);border-color:var(--line)}
+.dot{width:9px;height:9px;border-radius:50%}
+
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:border-color .15s,transform .15s}
+.card:hover{border-color:#37454f;transform:translateY(-2px)}
+.card .ch{padding:16px 17px 13px;display:flex;justify-content:space-between;gap:10px;cursor:pointer;border-bottom:1px solid var(--line-soft)}
+.card .nm{font-family:var(--disp);font-size:15.5px;font-weight:600;letter-spacing:-.01em}
+.card .meta{color:var(--tx3);font-size:11.5px;margin-top:3px;font-family:var(--mono)}
+.phasebar{display:flex;gap:4px;padding:14px 17px 6px}
+.pseg{flex:1;height:6px;border-radius:3px;background:var(--raised);position:relative}
+.pseg.done{background:var(--teal)}
+.pseg.cur{background:var(--teal);opacity:.5}
+.pseg .pl{position:absolute;top:11px;left:0;font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--tx3);white-space:nowrap}
+.card .cstat{padding:26px 17px 16px;font-size:11.5px;color:var(--tx2);display:flex;justify-content:space-between;align-items:center}
+.card .cstat .rng{font-family:var(--mono);color:var(--tx2)}
+.card .cstat .tot{font-family:var(--mono);color:var(--tx3)}
+
+.back{background:none;border:none;color:var(--tx2);font-size:13px;padding:0;margin:0 0 14px;display:inline-flex;gap:7px;align-items:center}
+.back:hover{color:var(--tx)}
+.dhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:22px}
+.dhead h2{font-family:var(--disp);font-size:24px;font-weight:700;margin:0 0 8px;letter-spacing:-.02em}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px;margin-bottom:18px}
+.panel > h3{font-family:var(--disp);font-size:13px;font-weight:600;margin:0 0 18px;letter-spacing:.02em;display:flex;align-items:center;gap:9px}
+.panel > h3 .ix{font-family:var(--mono);color:var(--tx3);font-size:12px;font-weight:500}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.field{margin-bottom:13px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--tx3);font-weight:600;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--tx);padding:8px 10px;border-radius:7px;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--teal);box-shadow:0 0 0 2px rgba(52,199,181,.15)}
+.field.mono input{font-family:var(--mono)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.cyc-head{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);font-weight:600;margin:24px 0 12px;padding-top:18px;border-top:1px solid var(--line-soft)}
+.cyc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cyc{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:15px}
+.cyc-t{display:flex;align-items:center;gap:10px;font-weight:600;font-size:13.5px;margin-bottom:14px}
+.cyc-ix{width:22px;height:22px;border-radius:6px;background:var(--raised2);display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--teal);flex-shrink:0}
+.cyc .field input{background:var(--surface)}
+.cyc-dur{font-family:var(--mono);font-size:11.5px;color:var(--tx3);margin-top:11px}
+.cyc-dur b{color:var(--tx2);font-weight:700}
+
+.genrange{display:flex;flex-wrap:wrap;gap:0;margin-top:20px;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.genrange .gi{flex:1;min-width:120px;padding:13px 16px;background:var(--bg);border-right:1px solid var(--line)}
+.genrange .gi:last-child{border-right:none}
+.genrange .gl{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3);font-weight:600}
+.genrange .gv{font-family:var(--mono);font-size:16px;font-weight:700;margin-top:5px}
+.genrange .gv.muted{color:var(--tx3);font-weight:400}
+.genrange .hint{font-size:10px;color:var(--tx3);margin-top:3px}
+
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3);font-weight:600;padding:9px 10px;border-bottom:1px solid var(--line)}
+td{padding:11px 10px;border-bottom:1px solid var(--line-soft);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+td.mono{font-family:var(--mono)}
+.gn-link{cursor:pointer;font-weight:500}
+.gn-link:hover{color:var(--teal)}
+.empty{color:var(--tx3);font-size:12.5px;padding:8px 0;font-style:italic}
+.fsel{background:var(--surface);color:var(--tx);border:1px solid var(--line);padding:8px 11px;border-radius:8px;font-size:13px;outline:none}
+.fsel:focus{border-color:var(--teal)}
+.authbar{display:flex;align-items:center;gap:8px;margin-top:18px;margin-bottom:-1px;flex-wrap:wrap}
+.apill{font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:20px;border:1px solid;display:inline-flex;align-items:center;gap:6px;font-family:var(--mono)}
+.apill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.apill.ed{color:var(--green);border-color:var(--green-bd);background:var(--green-bg)}
+.apill.ro{color:var(--tx2);border-color:var(--line);background:rgba(147,161,174,.08)}
+.amode{font-size:11.5px;color:var(--tx3);font-family:var(--mono)}
+.grp-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:13px 12px 11px;border-bottom:1px solid var(--line-soft)}
+.grp-head .gname{font-family:var(--disp);font-size:15px;font-weight:600;display:flex;align-items:center;gap:9px}
+.grp-head .gname .gdot{width:8px;height:8px;border-radius:50%;background:var(--teal)}
+.grp-head .gname.un .gdot{background:var(--tx3)}
+.grp-head .gstats{font-family:var(--mono);font-size:11.5px;color:var(--tx3);white-space:nowrap}
+.grp-head .gstats b{color:var(--tx2);font-weight:700}
+.mtag{font-family:var(--mono);font-size:11px;color:var(--teal);margin-top:5px;display:flex;align-items:center;gap:6px}
+.mtag.un{color:var(--tx3)}
+.mtag .md{width:6px;height:6px;border-radius:50%;background:currentColor}
+.note{color:var(--tx3);font-size:11.5px;line-height:1.55}
+.foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--tx3);font-size:11.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.foot a{color:var(--tx2)}
+@media(max-width:760px){
+  .kstrip{grid-template-columns:1fr 1fr}
+  .cols2,.fg2,.cyc-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <div class="glyph">&#8721;</div>
+      <div>
+        <h1>Math Studio</h1>
+        <p>Game Math Development Tracker</p>
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div class="note" style="margin-bottom:3px">Math partners</div>
+      <div class="note" style="color:var(--teal);font-family:var(--mono);max-width:280px" id="rosterNote"></div>
+    </div>
+  </div>
+  <div class="top-inner" style="padding-top:0">
+    <div class="tabs">
+      <button class="tab on" data-view="board">Games</button>
+      <button class="tab" data-view="cycles">Cycle summary</button>
+    </div>
+    <div class="authbar" id="authbar"></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div id="kstrip" class="kstrip"></div>
+  <main id="view"></main>
+  <div class="foot">
+    <span id="footMode">Math Studio &middot; single-file tool &middot; data saved locally in this browser</span>
+    <span><a href="#" id="exportBtn">Export JSON</a><span id="resetWrap"> &nbsp;&middot;&nbsp; <a href="#" id="resetBtn">Reset demo data</a></span></span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ===================== storage ===================== */
+const KEY='galaxsys_math_tracker_v2';
+let mem=null;
+function load(){try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null;}catch(e){return mem;}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){mem=JSON.parse(JSON.stringify(state));}}
+
+/* ===================== online sync (Supabase) =====================
+   To enable shared online sync:
+   1. Create a free Supabase project, then run the SQL setup (provided separately).
+   2. Paste your Project URL and anon (public) key below.
+   Leave both blank to keep running in local-only mode.
+   Reads are open; writes are limited to the editor allowlist via row-level security,
+   so the math team can view but cannot edit — enforced by the database, not the UI. */
+const SUPABASE_URL  = "https://uhtentjqywygnjslsugu.supabase.co";   // project base URL (no /rest/v1)
+const SUPABASE_ANON_KEY = "sb_publishable_SGjxraa4tBVGC1pf-Sgdrg_aZ3OFDiC"; // publishable (public) key
+const CLOUD = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
+const sb = CLOUD ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let EDIT = !CLOUD;   // local mode: full edit. cloud mode: only after editor sign-in
+let SESSION = null;
+
+function cloudErr(e){console.error('Supabase:',e);if(e&&e.code==='42501'){alert('You do not have edit permission for this change.');}}
+function touch(g){save();if(CLOUD)sb.from('games').upsert({id:g.id,data:g,updated_at:new Date().toISOString()}).then(({error})=>{if(error)cloudErr(error);});}
+function gone(id){save();if(CLOUD)sb.from('games').delete().eq('id',id).then(({error})=>{if(error)cloudErr(error);});}
+
+async function loadCloud(){
+  if(!CLOUD)return;
+  const {data,error}=await sb.from('games').select('id,data').order('updated_at',{ascending:true});
+  if(error){cloudErr(error);return;}
+  state.games=(data||[]).map(r=>r.data);
+}
+async function checkEditor(){
+  if(!CLOUD){EDIT=true;return;}
+  const {data:{session}}=await sb.auth.getSession();
+  SESSION=session;
+  if(session){const {data,error}=await sb.rpc('is_editor');EDIT=!error&&data===true;}
+  else EDIT=false;
+}
+async function signIn(){
+  const email=prompt("Enter your team email — we'll email you a sign-in link:");
+  if(!email)return;
+  const {error}=await sb.auth.signInWithOtp({email:email.trim(),options:{emailRedirectTo:location.href.split('#')[0]}});
+  alert(error?('Error: '+error.message):'Check your email for the sign-in link.');
+}
+async function signOut(){await sb.auth.signOut();SESSION=null;EDIT=false;renderAuthBar();render();}
+function subscribeRealtime(){
+  if(!CLOUD)return;
+  sb.channel('games-rt').on('postgres_changes',{event:'*',schema:'public',table:'games'},async()=>{
+    await loadCloud();
+    if(state.view==='detail'){renderKpis();}else{render();}
+  }).subscribe();
+}
+function renderAuthBar(){
+  const el=$('#authbar');if(!el)return;
+  if(!CLOUD){el.innerHTML='<span class="amode">Local mode &middot; add Supabase keys to sync online</span>';}
+  else if(SESSION&&EDIT){el.innerHTML=`<span class="apill ed">Editing &middot; ${esc(SESSION.user.email)}</span><button class="btn ghost sm" id="aRefresh">Refresh</button><button class="btn ghost sm" id="aOut">Sign out</button>`;}
+  else if(SESSION){el.innerHTML=`<span class="apill ro">View only &middot; ${esc(SESSION.user.email)}</span><button class="btn ghost sm" id="aRefresh">Refresh</button><button class="btn ghost sm" id="aOut">Sign out</button>`;}
+  else{el.innerHTML=`<span class="apill ro">View only</span><button class="btn ghost sm" id="aRefresh">Refresh</button><button class="btn sm" id="aIn">Team sign in</button>`;}
+  const r=$('#aRefresh');if(r)r.onclick=async()=>{await loadCloud();render();};
+  const i=$('#aIn');if(i)i.onclick=signIn;
+  const o=$('#aOut');if(o)o.onclick=signOut;
+  const fm=$('#footMode');if(fm)fm.textContent=CLOUD?'Math Studio · synced online via Supabase':'Math Studio · single-file tool · data saved locally in this browser';
+  const rw=$('#resetWrap');if(rw)rw.style.display=CLOUD?'none':'';
+}
+
+/* ===================== model ===================== */
+function blankGame(name){
+  return{
+    id:'g'+Date.now()+Math.floor(Math.random()*1000),
+    name:name||'New game', math:'', type:'Video slot', grid:'5x3', status:'Active', notes:'',
+    cycles:{ mock:{start:'',end:''}, final:{end:''} }
+  };
+}
+function seed(){
+ const g1=blankGame('Jade Fortune 88'); g1.math='Levon Hakobyan'; g1.type='Video slot'; g1.grid='5x4'; g1.status='Active';
+ g1.cycles.mock={start:'2026-04-06',end:'2026-04-28'};
+ g1.cycles.final={end:'2026-06-22'};
+ g1.notes='Mock model approved first pass. Final math delivered on the brief.';
+
+ const g2=blankGame('Dragon Coins Hold & Win'); g2.math='Davit Sargsyan'; g2.grid='5x3'; g2.status='Active';
+ g2.cycles.mock={start:'2026-05-01',end:'2026-05-29'};
+ g2.cycles.final={end:''};
+ g2.notes='Final math in progress — volatility being retuned.';
+
+ const g3=blankGame('Lucky Koi Megaways'); g3.math='Levon Hakobyan'; g3.grid='6x4'; g3.status='Active';
+ g3.cycles.mock={start:'2026-05-18',end:'2026-06-09'};
+ g3.cycles.final={end:''};
+ g3.notes='Mock approved. Final math underway.';
+ return [g1,g2,g3];
+}
+
+let state=load();
+if(!state){state={mathName:'',games:seed(),view:'board',open:null};save();}
+if(!state.view)state.view='board';
+
+/* ===================== helpers ===================== */
+const $=s=>document.querySelector(s);
+const esc=s=>(s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function days(a,b){if(!a||!b)return null;return Math.round((new Date(b)-new Date(a))/864e5);}
+const fmtD=d=>d?new Date(d+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}):null;
+
+/* derived general dates: earliest cycle start -> latest cycle end */
+function genStart(g){return g.cycles.mock.start||'';}
+function genEnd(g){const e=[g.cycles.mock.end,g.cycles.final.end].filter(Boolean).sort();return e[e.length-1]||'';}
+function totalDays(g){return days(genStart(g),genEnd(g));}
+
+function stage(g){
+  const m=g.cycles.mock,f=g.cycles.final;
+  if(f.end)   return {k:'done', cls:'b-green', label:'Complete'};
+  if(m.end)   return {k:'final',cls:'b-teal',  label:'Final model'};
+  if(m.start) return {k:'mock', cls:'b-amber', label:'Mock model'};
+  return {k:'none',cls:'b-gray',label:'Not started'};
+}
+const findG=id=>state.games.find(g=>g.id===id);
+function mathList(){return [...new Set(state.games.map(g=>g.math).filter(Boolean))].sort();}
+
+/* ===================== KPI strip ===================== */
+function renderKpis(){
+  const gs=state.games.filter(g=>g.status!=='Archived');
+  const complete=gs.filter(g=>g.cycles.final.end).length;
+  const inProg=gs.length-complete;
+  const maths=mathList();
+  $('#kstrip').innerHTML=`
+   <div class="kpi"><div class="lab">Games tracked</div><div class="val">${gs.length}</div><div class="sub">${state.games.length-gs.length} archived</div></div>
+   <div class="kpi"><div class="lab">Mathematicians</div><div class="val">${maths.length}</div><div class="sub">assigned across games</div></div>
+   <div class="kpi"><div class="lab">In progress</div><div class="val">${inProg}</div><div class="sub">cycle not yet complete</div></div>
+   <div class="kpi"><div class="lab">Completed</div><div class="val">${complete}</div><div class="sub">final math delivered</div></div>`;
+  const rn=$('#rosterNote');if(rn)rn.textContent=maths.length?maths.join(' · '):'none assigned yet';
+}
+
+/* ===================== BOARD ===================== */
+function renderBoard(){
+  const maths=mathList();
+  const filt=state.mfilter||'';
+  const list=state.games.filter(g=>!filt||(filt==='__un'?!g.math:g.math===filt));
+  const cards=list.map(g=>{
+    const st=stage(g),m=g.cycles.mock,f=g.cycles.final;
+    const seg1=m.end?'done':m.start?'cur':'';
+    const seg2=f.end?'done':m.end?'cur':'';
+    const gs=genStart(g),ge=genEnd(g),tot=totalDays(g);
+    const rng=gs?`${fmtD(gs)} &rarr; ${ge?fmtD(ge):'…'}`:'No dates set';
+    const mt=g.math?`<div class="mtag"><span class="md"></span>${esc(g.math)}</div>`:`<div class="mtag un"><span class="md"></span>Unassigned</div>`;
+    return `<div class="card">
+      <div class="ch" onclick="openGame('${g.id}')">
+        <div><div class="nm">${esc(g.name)}</div><div class="meta">${esc(g.type)} &middot; ${esc(g.grid)} &middot; ${esc(g.status)}</div>${mt}</div>
+        <span class="badge ${st.cls}"><span class="dot" style="background:currentColor"></span>${st.label}</span>
+      </div>
+      <div class="phasebar">
+        <div class="pseg ${seg1}"><span class="pl">Mock</span></div>
+        <div class="pseg ${seg2}"><span class="pl">Final</span></div>
+      </div>
+      <div class="cstat"><span class="rng">${rng}</span><span class="tot">${tot!=null?tot+'d':''}</span></div>
+    </div>`;
+  }).join('');
+  const filterUI=maths.length?`<select id="mfilter" class="fsel">
+      <option value=""${!filt?' selected':''}>All mathematicians</option>
+      ${maths.map(n=>`<option value="${esc(n)}"${filt===n?' selected':''}>${esc(n)}</option>`).join('')}
+      <option value="__un"${filt==='__un'?' selected':''}>Unassigned</option>
+    </select>`:'';
+  $('#view').innerHTML=`
+   <div class="sec-h">
+     <div><span class="eyebrow">Pipeline</span><h2>Games in development</h2></div>
+     <div style="display:flex;gap:10px;align-items:center">${filterUI}${EDIT?'<button class="btn" id="addGame">+ Add game</button>':''}</div>
+   </div>
+   <div class="grid-cards">${cards||'<div class="empty">No games match this filter.</div>'}</div>`;
+  const ab=$('#addGame');if(ab)ab.onclick=()=>{const g=blankGame();state.games.unshift(g);touch(g);openGame(g.id);};
+  const mf=$('#mfilter');if(mf)mf.onchange=e=>{state.mfilter=e.target.value;save();renderBoard();};
+}
+
+/* ===================== DETAIL ===================== */
+function bind(sel,gid,fn){const el=$(sel);if(el)el.addEventListener('change',e=>{const g=findG(gid);fn(g,e.target.value);touch(g);});}
+
+function renderDetail(){
+  const g=findG(state.open);if(!g){state.view='board';return render();}
+  const st=stage(g);
+  const v=$('#view');
+  v.innerHTML=`
+  <button class="back" onclick="go('board')">&larr; All games</button>
+  <div class="dhead">
+    <div>
+      <h2>${esc(g.name)}</h2>
+      <span class="badge ${st.cls}"><span class="dot" style="background:currentColor"></span>${st.label}</span>
+    </div>
+    ${EDIT?`<button class="btn danger sm" onclick="delGame('${g.id}')">Delete game</button>`:''}
+  </div>
+
+  <div class="panel">
+    <h3><span class="ix">01</span> Game brief</h3>
+    <div class="cols2">
+      <div>
+        <div class="field"><label>Game name</label><input id="f_name" value="${esc(g.name)}"></div>
+        <div class="field"><label>Mathematician</label>
+          <input id="f_math" list="mathRoster" value="${esc(g.math)}" placeholder="Assign by name">
+          <datalist id="mathRoster">${mathList().map(n=>`<option value="${esc(n)}"></option>`).join('')}</datalist>
+        </div>
+        <div class="fg2">
+          <div class="field"><label>Type</label><input id="f_type" value="${esc(g.type)}"></div>
+          <div class="field mono"><label>Grid</label><input id="f_grid" value="${esc(g.grid)}"></div>
+        </div>
+        <div class="field"><label>Status</label><select id="f_status">
+          ${['Active','On hold','Delivered','Live','Archived'].map(s=>`<option ${g.status===s?'selected':''}>${s}</option>`).join('')}
+        </select></div>
+      </div>
+      <div>
+        <div class="field"><label>Notes</label><textarea id="f_notes" rows="6">${esc(g.notes)}</textarea></div>
+      </div>
+    </div>
+
+    <div class="cyc-head">Development cycle</div>
+    <div class="cyc-grid">
+      <div class="cyc">
+        <div class="cyc-t"><span class="cyc-ix">A</span> Model with mock data</div>
+        <div class="fg2">
+          <div class="field mono"><label>Start</label><input type="date" id="f_ms" value="${g.cycles.mock.start}"></div>
+          <div class="field mono"><label>End</label><input type="date" id="f_me" value="${g.cycles.mock.end}"></div>
+        </div>
+        <div class="cyc-dur" id="dur_mock"></div>
+      </div>
+      <div class="cyc">
+        <div class="cyc-t"><span class="cyc-ix">B</span> Final model with correct math</div>
+        <div class="field mono"><label>End — final math delivered</label><input type="date" id="f_fe" value="${g.cycles.final.end}"></div>
+        <div class="cyc-dur" id="dur_final"></div>
+      </div>
+    </div>
+
+    <div class="genrange">
+      <div class="gi"><div class="gl">General start</div><div class="gv" id="gen_s">—</div><div class="hint">from earliest cycle</div></div>
+      <div class="gi"><div class="gl">General end</div><div class="gv" id="gen_e">—</div><div class="hint">from latest cycle</div></div>
+      <div class="gi"><div class="gl">Total span</div><div class="gv" id="gen_t">—</div><div class="hint">start to end</div></div>
+    </div>
+  </div>`;
+
+  bind('#f_name',g.id,(g,v)=>g.name=v);
+  bind('#f_math',g.id,(g,v)=>g.math=v.trim());
+  bind('#f_type',g.id,(g,v)=>g.type=v);
+  bind('#f_grid',g.id,(g,v)=>g.grid=v);
+  bind('#f_status',g.id,(g,v)=>g.status=v);
+  bind('#f_notes',g.id,(g,v)=>g.notes=v);
+  // cycle dates -> update derived readouts live + sync
+  const onDate=(prop,sub)=>e=>{const gg=findG(g.id);gg.cycles[prop][sub]=e.target.value;touch(gg);refreshDerived(g.id);};
+  $('#f_ms').addEventListener('change',onDate('mock','start'));
+  $('#f_me').addEventListener('change',onDate('mock','end'));
+  $('#f_fe').addEventListener('change',onDate('final','end'));
+  refreshDerived(g.id);
+  if(!EDIT)v.querySelectorAll('input,select,textarea').forEach(el=>el.disabled=true);
+}
+
+function refreshDerived(id){
+  const g=findG(id);
+  const dm=days(g.cycles.mock.start,g.cycles.mock.end);
+  const df=days(g.cycles.mock.end,g.cycles.final.end);
+  const em=$('#dur_mock'),ef=$('#dur_final');
+  if(em)em.innerHTML=dm==null?'<span style="color:var(--tx3)">duration —</span>':`duration <b>${dm} days</b>`;
+  if(ef)ef.innerHTML=df==null?'<span style="color:var(--tx3)">set mock end &amp; final end</span>':`<b>${df} days</b> from mock end`;
+  const gs=genStart(g),ge=genEnd(g),tot=totalDays(g);
+  const sEl=$('#gen_s'),eEl=$('#gen_e'),tEl=$('#gen_t');
+  if(sEl){sEl.textContent=gs?fmtD(gs):'—';sEl.className='gv'+(gs?'':' muted');}
+  if(eEl){eEl.textContent=ge?fmtD(ge):'—';eEl.className='gv'+(ge?'':' muted');}
+  if(tEl){tEl.textContent=tot!=null?tot+' days':'—';tEl.className='gv'+(tot!=null?'':' muted');}
+  renderKpis();
+}
+
+/* ===================== CYCLE SUMMARY ===================== */
+function renderCycles(){
+  const gs=state.games.filter(g=>g.status!=='Archived');
+  const groups={};
+  gs.forEach(g=>{const k=g.math||'__un';(groups[k]=groups[k]||[]).push(g);});
+  const keys=Object.keys(groups).filter(k=>k!=='__un').sort();
+  if(groups['__un'])keys.push('__un');
+
+  const rowFor=g=>{
+    const st=stage(g);
+    const dm=days(g.cycles.mock.start,g.cycles.mock.end);
+    const df=days(g.cycles.mock.end,g.cycles.final.end);
+    const tot=totalDays(g);
+    return `<tr>
+      <td><span class="gn-link" onclick="openGame('${g.id}')">${esc(g.name)}</span></td>
+      <td><span class="badge ${st.cls}">${st.label}</span></td>
+      <td class="mono">${dm==null?'—':dm+'d'}</td>
+      <td class="mono">${df==null?'—':df+'d'}</td>
+      <td class="mono">${genStart(g)?fmtD(genStart(g)):'—'} &rarr; ${genEnd(g)?fmtD(genEnd(g)):'…'}</td>
+      <td class="mono" style="font-weight:700">${tot==null?'—':tot+'d'}</td>
+    </tr>`;
+  };
+
+  const blocks=keys.map(k=>{
+    const isUn=k==='__un';
+    const name=isUn?'Unassigned':k;
+    const games=groups[k];
+    const done=games.filter(g=>g.cycles.final.end);
+    const durs=done.map(totalDays).filter(d=>d!=null);
+    const avg=durs.length?Math.round(durs.reduce((a,b)=>a+b,0)/durs.length):null;
+    return `<div class="panel" style="padding:0 8px 4px;margin-bottom:16px">
+      <div class="grp-head">
+        <div class="gname ${isUn?'un':''}"><span class="gdot"></span>${esc(name)}</div>
+        <div class="gstats"><b>${games.length}</b> game${games.length>1?'s':''} &middot; <b>${done.length}</b> complete &middot; avg span <b>${avg==null?'—':avg+'d'}</b></div>
+      </div>
+      <table>
+        <thead><tr><th>Game</th><th>Stage</th><th>Mock cycle</th><th>Mock&rarr;Final</th><th>Span</th><th>Total</th></tr></thead>
+        <tbody>${games.map(rowFor).join('')}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+
+  $('#view').innerHTML=`
+   <div class="sec-h"><div><span class="eyebrow">Throughput by mathematician</span><h2>Cycle summary</h2></div></div>
+   ${blocks||'<div class="empty">No active games.</div>'}
+   <div class="note" style="max-width:720px">Projects are grouped by their assigned mathematician so you can compare workload and turnaround across people. Once you tell me what defines a "good" run — a target span to beat, rework count, or similar — I can turn each group into a per-person performance verdict.</div>`;
+}
+
+/* ===================== router ===================== */
+function go(view){state.view=view;state.open=null;save();render();}
+function openGame(id){state.open=id;state.view='detail';save();render();window.scrollTo(0,0);}
+function delGame(id){if(confirm('Delete this game?')){state.games=state.games.filter(g=>g.id!==id);gone(id);go('board');}}
+
+function render(){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.view===state.view||(state.view==='detail'&&t.dataset.view==='board')));
+  renderKpis();
+  if(state.view==='detail'&&state.open)renderDetail();
+  else if(state.view==='cycles')renderCycles();
+  else renderBoard();
+}
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>go(t.dataset.view));
+$('#exportBtn').onclick=e=>{e.preventDefault();const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='math-tracker-data.json';a.click();};
+$('#resetBtn').onclick=e=>{e.preventDefault();if(confirm('Reset to demo data? This wipes your entries.')){state={mathName:'',games:seed(),view:'board',open:null};save();render();}};
+
+renderAuthBar();
+render();
+
+async function boot(){
+  if(!CLOUD)return;
+  sb.auth.onAuthStateChange(async()=>{await checkEditor();await loadCloud();renderAuthBar();render();});
+  await checkEditor();
+  await loadCloud();
+  subscribeRealtime();
+  renderAuthBar();
+  render();
+}
+boot();
+</script>
+</body>
+</html>
